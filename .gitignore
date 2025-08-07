@@ -1,4 +1,49 @@
-HELP.md
+# Java & Maven
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+/.idea/
+*.iml
+*.ipr
+*.iws
+*.sw?
+*.log
+*.tmp
+*.bak
+*.class
+
+# VSCode
+.vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno
+.env
+
+# Archivos de usuario
+*.local
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos de prueba
+/test-output/
+
+# Otros
+*.log
+*.lock
+*.orig
+
+# Archivos de base de datos H2
+*.mv.db
+*.h2.db
+
+# Archivos de configuración personales
+*.settings/HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
