@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gestor de Tareas</title>
+
+  <!-- Bootstrap CSS CDN -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    crossorigin="anonymous" />
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Tu CSS custom (opcional) -->
+  <link th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="container my-5">
+    <h1 class="mb-4 text-center">📝 Mis Tareas</h1>
+
+    <!-- Alertas de éxito -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle-fill"></i>
+      <span th:text="${success}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Formulario para crear nueva tarea -->
+    <form th:action="@{/tasks}" method="post" class="row g-2 mb-4">
+      <div class="col">
+        <input name="title" class="form-control" placeholder="Título" required />
+      </div>
+      <div class="col">
+        <input name="description" class="form-control" placeholder="Descripción" required />
+      </div>
+      <div class="col">
+        <input name="dueDate" type="date" class="form-control" required />
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Añadir Tarea</button>
+      </div>
+    </form>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <table class="table table-hover table-striped align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Descripción</th>
+              <th>Fecha Límite</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="t : ${tasks}">
+              <td><span class="badge bg-secondary" th:text="${t.id}"></span></td>
+              <td><span class="fw-bold" th:text="${t.title}"></span></td>
+              <td th:text="${t.description}"></td>
+              <td><span class="badge bg-info text-dark" th:text="${#temporals.format(t.dueDate, 'dd/MM/yyyy')}"></span></td>
+              <td>
+                <span th:if="${t.done}" class="badge bg-success"><i class="bi bi-check-circle"></i> Hecho</span>
+                <span th:unless="${t.done}" class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pendiente</span>
+              </td>
+              <td class="d-flex gap-2">
+                <a th:href="@{|/tasks/toggle/${t.id}|}"
+                   class="btn btn-outline-secondary btn-sm d-flex align-items-center"
+                   data-bs-toggle="tooltip"
+                   th:title="'Cambiar estado'">
+                  <i class="bi bi-arrow-repeat"></i>
+                  <span class="ms-1 d-none d-md-inline">Cambiar</span>
+                </a>
+                <a th:href="@{|/tasks/edit/${t.id}|}"
+                   class="btn btn-outline-info btn-sm"
+                   data-bs-toggle="tooltip" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a th:href="@{|/tasks/delete/${t.id}|}"
+                   class="btn btn-outline-danger btn-sm"
+                   data-bs-toggle="tooltip" title="Eliminar"
+                   onclick="return confirm('¿Eliminar tarea?');">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (opcional, para componentes interactivos) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script>
+    // Inicializa tooltips de Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  </script>
+</body>
+</html>
