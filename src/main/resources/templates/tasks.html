@@ -17,34 +17,84 @@
 
 <body>
   <div class="container my-5">
-    <h1 class="mb-4 text-center">📝 Mis Tareas</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="mb-0 text-center flex-grow-1">📝 Mis Tareas</h1>
+      <button id="darkModeToggle" class="btn btn-outline-dark ms-3" aria-label="Alternar modo oscuro" tabindex="0">
+        <i class="bi bi-moon"></i>
+      </button>
+    </div>
 
     <!-- Alertas de éxito -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
       <i class="bi bi-check-circle-fill"></i>
       <span th:text="${success}"></span>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+    <!-- Alertas de error -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show animate__animated animate__shakeX" role="alert">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span th:text="${error}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
 
     <!-- Formulario para crear nueva tarea -->
-    <form th:action="@{/tasks}" method="post" class="row g-2 mb-4">
+    <form th:action="@{/tasks}" method="post" class="row g-2 mb-4 needs-validation" novalidate>
       <div class="col">
-        <input name="title" class="form-control" placeholder="Título" required />
+        <input name="title" class="form-control" placeholder="Título" required minlength="3" maxlength="100" aria-label="Título de la tarea" oninvalid="this.setCustomValidity('Por favor, ingresa un título (mínimo 3 caracteres).')" oninput="setCustomValidity('')">
+        <div class="invalid-feedback">El título es obligatorio (mínimo 3 caracteres).</div>
       </div>
       <div class="col">
-        <input name="description" class="form-control" placeholder="Descripción" required />
+        <input name="description" class="form-control" placeholder="Descripción" maxlength="255" aria-label="Descripción de la tarea">
+        <div class="invalid-feedback">La descripción no puede superar los 255 caracteres.</div>
       </div>
       <div class="col">
-        <input name="dueDate" type="date" class="form-control" required />
+        <input name="dueDate" type="date" class="form-control" required aria-label="Fecha límite" oninvalid="this.setCustomValidity('Por favor, selecciona una fecha límite.')" oninput="setCustomValidity('')">
+        <div class="invalid-feedback">La fecha límite es obligatoria.</div>
       </div>
       <div class="col-auto">
         <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Añadir Tarea</button>
       </div>
     </form>
+    <script>
+    // Bootstrap 5 validación visual para todos los formularios
+    (() => {
+      'use strict';
+      const forms = document.querySelectorAll('form.needs-validation');
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
+    </script>
 
+    <!-- Filtros y buscador -->
+    <div class="row mb-3 g-2">
+      <div class="col-md-4">
+        <input id="searchInput" type="text" class="form-control" placeholder="Buscar por título o descripción..." aria-label="Buscar tareas">
+      </div>
+      <div class="col-md-3">
+        <select id="statusFilter" class="form-select" aria-label="Filtrar por estado">
+          <option value="all">Todas</option>
+          <option value="done">Hechas</option>
+          <option value="pending">Pendientes</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select id="sortSelect" class="form-select" aria-label="Ordenar por">
+          <option value="dueDateAsc">Fecha límite (asc)</option>
+          <option value="dueDateDesc">Fecha límite (desc)</option>
+          <option value="status">Estado</option>
+        </select>
+      </div>
+    </div>
     <div class="card shadow-sm">
       <div class="card-body">
-        <table class="table table-hover table-striped align-middle">
+        <table class="table table-hover table-striped align-middle" id="tasksTable">
           <thead class="table-dark">
             <tr>
               <th>ID</th>
@@ -55,8 +105,9 @@
               <th>Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            <tr th:each="t : ${tasks}">
+          <tbody id="tasksTbody">
+      <tr th:each="t : ${tasks}"
+        th:attr="data-title=${t.title},data-description=${t.description},data-status=${t.done},data-duedate=${#temporals.format(t.dueDate, 'yyyy-MM-dd')}">
               <td><span class="badge bg-secondary" th:text="${t.id}"></span></td>
               <td><span class="fw-bold" th:text="${t.title}"></span></td>
               <td th:text="${t.description}"></td>
@@ -69,18 +120,21 @@
                 <a th:href="@{|/tasks/toggle/${t.id}|}"
                    class="btn btn-outline-secondary btn-sm d-flex align-items-center"
                    data-bs-toggle="tooltip"
-                   th:title="'Cambiar estado'">
+                   th:title="'Cambiar estado'"
+                   aria-label="Cambiar estado de la tarea">
                   <i class="bi bi-arrow-repeat"></i>
                   <span class="ms-1 d-none d-md-inline">Cambiar</span>
                 </a>
                 <a th:href="@{|/tasks/edit/${t.id}|}"
                    class="btn btn-outline-info btn-sm"
-                   data-bs-toggle="tooltip" title="Editar">
+                   data-bs-toggle="tooltip" title="Editar"
+                   aria-label="Editar tarea">
                   <i class="bi bi-pencil"></i>
                 </a>
                 <a th:href="@{|/tasks/delete/${t.id}|}"
                    class="btn btn-outline-danger btn-sm"
                    data-bs-toggle="tooltip" title="Eliminar"
+                   aria-label="Eliminar tarea"
                    onclick="return confirm('¿Eliminar tarea?');">
                   <i class="bi bi-trash"></i>
                 </a>
@@ -94,12 +148,136 @@
 
   <!-- Bootstrap JS (opcional, para componentes interactivos) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <!-- Animate.css CDN para animaciones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <script>
+    // Filtro, búsqueda y ordenamiento frontend mejorado
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchInput');
+      const statusFilter = document.getElementById('statusFilter');
+      const sortSelect = document.getElementById('sortSelect');
+      const tbody = document.getElementById('tasksTbody');
+      let rows = Array.from(tbody.querySelectorAll('tr'));
+
+      function normalize(str) {
+        return (str || '').toString().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+      }
+
+      function filterAndSort() {
+        let search = normalize(searchInput.value);
+        let status = statusFilter.value;
+        let sort = sortSelect.value;
+        let filtered = rows.filter(row => {
+          let title = normalize(row.getAttribute('data-title'));
+          let desc = normalize(row.getAttribute('data-description'));
+          let done = row.getAttribute('data-status') === 'true';
+          let matchSearch = !search || title.includes(search) || desc.includes(search);
+          let matchStatus = (status === 'all') || (status === 'done' && done) || (status === 'pending' && !done);
+          return matchSearch && matchStatus;
+        });
+        // Ordenar
+        if (sort === 'dueDateAsc') {
+          filtered.sort((a, b) => (a.getAttribute('data-duedate') || '').localeCompare(b.getAttribute('data-duedate') || ''));
+        } else if (sort === 'dueDateDesc') {
+          filtered.sort((a, b) => (b.getAttribute('data-duedate') || '').localeCompare(a.getAttribute('data-duedate') || ''));
+        } else if (sort === 'status') {
+          filtered.sort((a, b) => (a.getAttribute('data-status') || '').localeCompare(b.getAttribute('data-status') || ''));
+        }
+        // Renderizar
+        tbody.innerHTML = '';
+        filtered.forEach(row => tbody.appendChild(row));
+      }
+      searchInput.addEventListener('input', filterAndSort);
+      statusFilter.addEventListener('change', filterAndSort);
+      sortSelect.addEventListener('change', filterAndSort);
+      filterAndSort();
+    });
+  </script>
+  <style>
+    body.dark-mode {
+      background-color: #181a1b !important;
+      color: #f1f1f1 !important;
+    }
+    body.dark-mode .card,
+    body.dark-mode .table,
+    body.dark-mode .form-control,
+    body.dark-mode .alert {
+      background-color: #23272b !important;
+      color: #f1f1f1 !important;
+    }
+    body.dark-mode .table-dark {
+      background-color: #343a40 !important;
+    }
+    body.dark-mode .btn-outline-dark {
+      color: #f1f1f1;
+      border-color: #f1f1f1;
+    }
+    body.dark-mode .btn-outline-dark:hover {
+      background: #343a40;
+    }
+    body.dark-mode .form-control:focus {
+      background: #23272b;
+      color: #f1f1f1;
+      border-color: #f1f1f1;
+    }
+    body.dark-mode .table-hover tbody tr:hover {
+      background-color: #2c3034 !important;
+    }
+    body.dark-mode .badge.bg-info {
+      background-color: #0dcaf0 !important;
+      color: #181a1b !important;
+    }
+    body.dark-mode .badge.bg-success {
+      background-color: #198754 !important;
+      color: #fff !important;
+    }
+    body.dark-mode .badge.bg-warning {
+      background-color: #ffc107 !important;
+      color: #181a1b !important;
+    }
+    body.dark-mode .badge.bg-secondary {
+      background-color: #6c757d !important;
+      color: #fff !important;
+    }
+    body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
+      --bs-table-accent-bg: #23272b;
+      color: #f1f1f1;
+    }
+    /* Mejor contraste para accesibilidad */
+    .form-control:focus {
+      outline: 2px solid #0d6efd;
+      outline-offset: 1px;
+    }
+    .btn:focus, .btn-close:focus {
+      outline: 2px solid #0d6efd !important;
+      outline-offset: 2px;
+      box-shadow: none !important;
+    }
+  </style>
   <script>
     // Inicializa tooltips de Bootstrap
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+
+    // Dark mode toggle
+    const darkModeBtn = document.getElementById('darkModeToggle');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (localStorage.getItem('darkMode') === 'true' || (!localStorage.getItem('darkMode') && prefersDark)) {
+      document.body.classList.add('dark-mode');
+    }
+    darkModeBtn.addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+      this.querySelector('i').classList.toggle('bi-moon');
+      this.querySelector('i').classList.toggle('bi-brightness-high');
+    });
+    // Cambia el icono según el modo
+    if(document.body.classList.contains('dark-mode')) {
+      darkModeBtn.querySelector('i').classList.remove('bi-moon');
+      darkModeBtn.querySelector('i').classList.add('bi-brightness-high');
+    }
   </script>
 </body>
 </html>

@@ -10,27 +10,48 @@
   <div class="container my-5">
     <h2 class="mb-4 text-center"><i class="bi bi-pencil-square"></i> Editar Tarea</h2>
     <form th:action="@{'/tasks/edit/' + ${task.id}}" method="post" class="row g-3 mb-4">
-      <div class="col-12 col-md-4">
-        <div class="form-floating">
-          <input name="title" id="title" class="form-control" placeholder="Título" th:value="${task.title}" required />
-          <label for="title">Título</label>
+        <div class="mb-3">
+            <label for="title" class="form-label">Título <span class="text-danger">*</span></label>
+            <input type="text" th:field="*{title}" class="form-control" id="title" name="title" required minlength="3" maxlength="100" aria-label="Título de la tarea" placeholder="Ej: Comprar leche" oninvalid="this.setCustomValidity('Por favor, ingresa un título (mínimo 3 caracteres).')" oninput="setCustomValidity('')">
+            <div class="invalid-feedback">El título es obligatorio (mínimo 3 caracteres).</div>
         </div>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="form-floating">
-          <input name="description" id="description" class="form-control" placeholder="Descripción" th:value="${task.description}" required />
-          <label for="description">Descripción</label>
+        <div class="mb-3">
+            <label for="description" class="form-label">Descripción</label>
+            <textarea th:field="*{description}" class="form-control" id="description" name="description" maxlength="255" aria-label="Descripción de la tarea" placeholder="Detalles opcionales"></textarea>
+            <div class="invalid-feedback">La descripción no puede superar los 255 caracteres.</div>
         </div>
-      </div>
-      <div class="col-12 col-md-3">
-        <div class="form-floating">
-          <input name="dueDate" id="dueDate" type="date" class="form-control" th:value="${task.dueDate}" required />
-          <label for="dueDate">Fecha Límite</label>
+        <div class="mb-3">
+            <label for="dueDate" class="form-label">Fecha límite <span class="text-danger">*</span></label>
+            <input type="date" th:field="*{dueDate}" class="form-control" id="dueDate" name="dueDate" required aria-label="Fecha límite" oninvalid="this.setCustomValidity('Por favor, selecciona una fecha límite.')" oninput="setCustomValidity('')">
+            <div class="invalid-feedback">La fecha límite es obligatoria.</div>
         </div>
-      </div>
-      <div class="col-12 col-md-1 d-grid">
-        <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button>
-      </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" th:field="*{completed}" id="completed" name="completed" aria-label="Marcar como completada">
+            <label class="form-check-label" for="completed">Completada</label>
+        </div>
+        <div class="col-12 col-md-1 d-grid">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+        <div class="text-center">
+            <a th:href="@{/tasks}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+    <script>
+    // Bootstrap 5 validación visual
+    (() => {
+      'use strict';
+      const forms = document.querySelectorAll('form');
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
+    </script>
     </form>
     <div class="text-center">
       <a th:href="@{/tasks}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
