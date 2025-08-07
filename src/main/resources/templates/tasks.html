@@ -131,13 +131,13 @@
                    aria-label="Editar tarea">
                   <i class="bi bi-pencil"></i>
                 </a>
-                <a th:href="@{|/tasks/delete/${t.id}|}"
-                   class="btn btn-outline-danger btn-sm"
+                <button type="button"
+                   class="btn btn-outline-danger btn-sm btn-delete-task"
                    data-bs-toggle="tooltip" title="Eliminar"
                    aria-label="Eliminar tarea"
-                   onclick="return confirm('¿Eliminar tarea?');">
+                   th:attr="data-task-id=${t.id},data-task-title=${t.title}">
                   <i class="bi bi-trash"></i>
-                </a>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -147,10 +147,43 @@
   </div>
 
   <!-- Bootstrap JS (opcional, para componentes interactivos) -->
+  <!-- Modal Bootstrap para confirmación de eliminación -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          ¿Seguro que deseas eliminar la tarea <span id="modalTaskTitle" class="fw-bold"></span>?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Eliminar</a>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <!-- Animate.css CDN para animaciones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
   <script>
+    // Modal de confirmación de eliminación
+    document.addEventListener('DOMContentLoaded', function() {
+      var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+      var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+      var modalTaskTitle = document.getElementById('modalTaskTitle');
+      document.querySelectorAll('.btn-delete-task').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var taskId = this.getAttribute('data-task-id');
+          var taskTitle = this.getAttribute('data-task-title');
+          confirmDeleteBtn.setAttribute('href', '/tasks/delete/' + encodeURIComponent(taskId));
+          modalTaskTitle.textContent = taskTitle;
+          deleteModal.show();
+        });
+      });
+    });
     // Filtro, búsqueda y ordenamiento frontend mejorado
     document.addEventListener('DOMContentLoaded', function() {
       const searchInput = document.getElementById('searchInput');
@@ -252,6 +285,30 @@
       outline: 2px solid #0d6efd !important;
       outline-offset: 2px;
       box-shadow: none !important;
+    }
+    /* Placeholders visibles en modo oscuro */
+    body.dark-mode ::placeholder {
+      color: #bdbdbd !important;
+      opacity: 1 !important;
+    }
+    body.dark-mode :-ms-input-placeholder { /* IE 10+ */
+      color: #bdbdbd !important;
+    }
+    body.dark-mode ::-ms-input-placeholder { /* Edge */
+      color: #bdbdbd !important;
+    }
+    /* Modal Bootstrap modo oscuro */
+    body.dark-mode .modal-content {
+      background-color: #23272b !important;
+      color: #f1f1f1 !important;
+      border: 1px solid #444;
+    }
+    body.dark-mode .modal-header,
+    body.dark-mode .modal-footer {
+      border-color: #343a40 !important;
+    }
+    body.dark-mode .modal-title {
+      color: #f1f1f1 !important;
     }
   </style>
   <script>
