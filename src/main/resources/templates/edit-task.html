@@ -9,7 +9,7 @@
 <body>
   <div class="container my-5">
     <h2 class="mb-4 text-center"><i class="bi bi-pencil-square"></i> Editar Tarea</h2>
-    <form th:action="@{'/tasks/edit/' + ${task.id}}" method="post" class="row g-3 mb-4">
+    <form th:action="@{'/tasks/edit/' + ${task.id}}" th:object="${task}" method="post" class="row g-3 mb-4">
         <div class="mb-3">
             <label for="title" class="form-label">Título <span class="text-danger">*</span></label>
             <input type="text" th:field="*{title}" class="form-control" id="title" name="title" required minlength="3" maxlength="100" aria-label="Título de la tarea" placeholder="Ej: Comprar leche" oninvalid="this.setCustomValidity('Por favor, ingresa un título (mínimo 3 caracteres).')" oninput="setCustomValidity('')">
@@ -25,10 +25,10 @@
             <input type="date" th:field="*{dueDate}" class="form-control" id="dueDate" name="dueDate" required aria-label="Fecha límite" oninvalid="this.setCustomValidity('Por favor, selecciona una fecha límite.')" oninput="setCustomValidity('')">
             <div class="invalid-feedback">La fecha límite es obligatoria.</div>
         </div>
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" th:field="*{completed}" id="completed" name="completed" aria-label="Marcar como completada">
-            <label class="form-check-label" for="completed">Completada</label>
-        </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" th:field="*{done}" id="done" name="done" aria-label="Marcar como completada">
+      <label class="form-check-label" for="done">Completada</label>
+    </div>
         <div class="col-12 col-md-1 d-grid">
             <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
